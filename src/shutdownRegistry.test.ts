@@ -64,6 +64,31 @@ describe("shutdownRegistry", () => {
     u1();
   });
 
+  it("runs registered teardowns on a plain exit", () => {
+    const calls: string[] = [];
+    const u1 = registerShutdown(() => calls.push("e"));
+
+    process.emit("exit", 0);
+
+    expect(calls).toEqual(["e"]);
+    u1();
+  });
+
+  it("detaches its listeners while handling a signal so process.exit's exit event cannot re-run teardowns", () => {
+    stubExit();
+    const sigintBefore = process.listenerCount("SIGINT");
+    const exitBefore = process.listenerCount("exit");
+    const u1 = registerShutdown(() => {});
+
+    process.emit("SIGINT");
+
+    // The handler removes every listener before calling process.exit(1), so the
+    // synchronous "exit" event the real exit fires finds nothing to run again.
+    expect(process.listenerCount("SIGINT")).toBe(sigintBefore);
+    expect(process.listenerCount("exit")).toBe(exitBefore);
+    u1();
+  });
+
   it("does not run a teardown after it has been unregistered", () => {
     stubExit();
     const calls: string[] = [];

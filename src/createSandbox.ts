@@ -860,11 +860,6 @@ export const createSandbox = async (
       ? () => syncOut(worktreePath, providerHandle as IsolatedSandboxHandle)
       : () => Effect.void;
 
-  // Register shutdown cleanup via the shared registry so concurrent sandboxes
-  // don't each add SIGINT/SIGTERM listeners (which trips Node's
-  // MaxListenersExceededWarning). The registry runs every teardown then exits
-  // once, so this guidance now prints on signal even alongside a container
-  // provider whose own teardown previously exited first.
   let closed = false;
 
   const forceCleanup = () => {
@@ -873,6 +868,8 @@ export const createSandbox = async (
     console.error(`  To clean up: git worktree remove --force ${worktreePath}`);
   };
 
+  // Route cleanup through the shared registry so concurrent sandboxes share one
+  // SIGINT/SIGTERM/exit listener instead of tripping MaxListenersExceededWarning.
   const unregisterShutdown = registerShutdown(forceCleanup);
 
   // Build close function
