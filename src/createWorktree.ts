@@ -362,18 +362,11 @@ export const createWorktree = async (
       } else {
         const gitPath = join(hostRepoDir, ".git");
         const rawGitMounts = yield* resolveGitMounts(gitPath);
-        const gitMounts = yield* Effect.tryPromise({
-          try: () =>
-            patchGitMountsForWindows(
-              rawGitMounts,
-              worktreeInfo.path,
-              SANDBOX_REPO_DIR,
-            ),
-          catch: (e) =>
-            new Error(
-              `Failed to patch git mounts: ${e instanceof Error ? e.message : String(e)}`,
-            ),
-        });
+        const gitMounts = yield* patchGitMountsForWindows(
+          rawGitMounts,
+          worktreeInfo.path,
+          SANDBOX_REPO_DIR,
+        );
         const startResult = yield* d.taskLog("Starting sandbox", () =>
           startSandbox({
             provider: resolvedSandbox,
@@ -574,18 +567,11 @@ export const createWorktree = async (
       } else {
         const gitPath = join(hostRepoDir, ".git");
         const rawGitMounts = yield* resolveGitMounts(gitPath);
-        const gitMounts = yield* Effect.tryPromise({
-          try: () =>
-            patchGitMountsForWindows(
-              rawGitMounts,
-              worktreeInfo.path,
-              SANDBOX_REPO_DIR,
-            ),
-          catch: (e) =>
-            new Error(
-              `Failed to patch git mounts: ${e instanceof Error ? e.message : String(e)}`,
-            ),
-        });
+        const gitMounts = yield* patchGitMountsForWindows(
+          rawGitMounts,
+          worktreeInfo.path,
+          SANDBOX_REPO_DIR,
+        );
         const startResult = yield* startSandbox({
           provider: sandboxProvider,
           hostRepoDir,

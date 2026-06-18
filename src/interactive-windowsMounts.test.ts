@@ -9,11 +9,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { Effect } from "effect";
 
 const execAsync = promisify(exec);
 
 const mockPatchGitMountsForWindows = vi.fn(
-  async (
+  (
     gitMounts: Array<{ hostPath: string; sandboxPath: string }>,
     _worktreePath: string,
     _sandboxRepoDir: string,
@@ -28,7 +29,10 @@ vi.mock("./mountUtils.js", async (importOriginal) => {
       gitMounts: Array<{ hostPath: string; sandboxPath: string }>,
       worktreePath: string,
       sandboxRepoDir: string,
-    ) => mockPatchGitMountsForWindows(gitMounts, worktreePath, sandboxRepoDir),
+    ) =>
+      Effect.succeed(
+        mockPatchGitMountsForWindows(gitMounts, worktreePath, sandboxRepoDir),
+      ),
   };
 });
 

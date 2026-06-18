@@ -321,18 +321,11 @@ export const interactive = async (
         const worktreeOrRepoPath = isHeadMode
           ? hostRepoDir
           : worktreeInfo!.path;
-        const gitMounts = yield* Effect.tryPromise({
-          try: () =>
-            patchGitMountsForWindows(
-              rawGitMounts,
-              worktreeOrRepoPath,
-              SANDBOX_REPO_DIR,
-            ),
-          catch: (e) =>
-            new Error(
-              `Failed to patch git mounts: ${e instanceof Error ? e.message : String(e)}`,
-            ),
-        });
+        const gitMounts = yield* patchGitMountsForWindows(
+          rawGitMounts,
+          worktreeOrRepoPath,
+          SANDBOX_REPO_DIR,
+        );
         const startResult = yield* d.taskLog("Starting sandbox", () =>
           startSandbox({
             provider: sandboxProvider,
